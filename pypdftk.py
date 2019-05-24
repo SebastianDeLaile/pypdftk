@@ -84,6 +84,19 @@ def fill_form(pdf_path, datas={}, out_file=None, flatten=True):
     os.remove(tmp_fdf)
     return out_file
 
+def dump_data(pdf_path):
+    '''
+        Return list of dicts of all fields in a PDF.
+    '''
+    cmd = "%s %s dump_data" % (PDFTK_PATH, pdf_path)
+    # Either can return strings with :
+    #    field_data = map(lambda x: x.decode("utf-8").split(': ', 1), run_command(cmd, True))
+    # Or return bytes with : (will break tests)
+    #    field_data = map(lambda x: x.split(b': ', 1), run_command(cmd, True))
+    field_data = map(lambda x: x.decode("utf-8").split(': ', 1), run_command(cmd, True))
+    fields = [list(group) for k, group in itertools.groupby(field_data, lambda x: len(x) == 1) if not k]
+    return [dict(f) for f in fields]
+
 def dump_data_fields(pdf_path):
     '''
         Return list of dicts of all fields in a PDF.
